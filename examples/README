@@ -1,0 +1,9 @@
+To make this run:
+
+ $ cd src
+ $ export PYTHONPATH=$(pwd)
+ $ cd ../examples
+ 
+and launch whatever you need.
+
+

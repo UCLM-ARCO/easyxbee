@@ -13,5 +13,3 @@ while True:
     except KeyboardInterrupt:
         print "\rBye!"
         break
-
-
