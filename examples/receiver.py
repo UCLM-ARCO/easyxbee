@@ -3,13 +3,14 @@
 
 from EasyXBee import LocalNode
 
-node = LocalNode(tty='/dev/ttyUSB0')
-node.set_pan_id(2012)
+node = LocalNode(tty='/dev/ttyUSB1')
+node.set_pan_id(0x2012)
 node.set_name("receiver")
+node.write_config()
 
 while True:
     try:
-        print node.receive()
+        print list(node.receive())
     except KeyboardInterrupt:
         print "\rBye!"
         break

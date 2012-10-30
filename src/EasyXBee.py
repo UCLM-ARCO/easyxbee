@@ -81,7 +81,7 @@ class RemoteNode(object):
         self.role = 255
 
     def __unicode__(self):
-        return "<RemoteNode: name: '{}', 16-bit addr: '0x{:04x}', {}".format(
+        return "<RemoteNode: name: '{}', 16-bit addr: '0x{:04x}', {}>".format(
             self.name, self.my_addr, self.get_role_name())
 
     def __repr__(self):
