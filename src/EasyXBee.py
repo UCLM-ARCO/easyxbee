@@ -66,9 +66,6 @@ class XBeeDevice(object):
     def receive_frame(self):
         return self.xbee.wait_read_frame()
 
-    def write_config(self):
-        self.send_command("WR")
-
     def get_max_payload_size(self):
         response = self.send_command("NP")
         return struct.unpack(">H", response['parameter'])[0]
@@ -160,8 +157,15 @@ class LocalNode(object):
 
         self.device = device
 
+    def get_id_as_int64(self, value):
+        for i in range(8 - len(value)):
+            value += '\x00'
+        return struct.unpack(">Q", value)[0]
+
     def set_pan_id(self, value):
-        assert type(value) is int
+        if not type(value) is int:
+            value = self.get_id_as_int64(value)
+
         if self.get_pan_id() == value:
             return
 
@@ -188,6 +192,9 @@ class LocalNode(object):
             return
 
         self.device.send_command("NI", str(name))
+
+    def write_config(self):
+        self.device.send_command("WR")
 
     def lookup(self, name):
         self.device.send_command("DN", str(name), wait_response=False)
@@ -238,7 +245,9 @@ class LocalNode(object):
         return struct.unpack(">H", response['parameter'])[0] * 100
 
     def receive(self):
-        message = self.device.receive_frame()
-        return message['rf_data']
+        while True:
+            message = self.device.receive_frame()
+            if message.has_key('rf_data'):
+                return message['rf_data']
 
 
