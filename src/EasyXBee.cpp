@@ -158,9 +158,10 @@ EasyXBee::lookup(uint8_t* name, uint8_t size, XBeeAddress64* addr64, uint16_t* a
 
 //
 // This method will try to set the PAN identifier for this node (ATID
-// command). If success, it will return true, and false otherwise. It
-// is recommended to call 'wait_until_ready()' method after changing
-// the PAN id, to assure that changes are effective.
+// command). Maximum: 8 chars. If success, it will return true, and
+// false otherwise. It is recommended to call 'wait_until_ready()'
+// method after changing the PAN id, to assure that changes are
+// effective.
 //
 bool
 EasyXBee::set_pan_id(uint8_t* pan_id) {
