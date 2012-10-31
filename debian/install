@@ -1,0 +1,2 @@
+src/*.cpp  /usr/share/arduino/libraries/EasyXBee
+src/*.h    /usr/share/arduino/libraries/EasyXBee
