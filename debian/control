@@ -9,7 +9,7 @@ Homepage: https://bitbucket.org/OscarAcena/easyxbee/overview
 Package: easyxbee
 Architecture: i386
 Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends},
- python-serial
+ python-serial, arduino-xbee
 Description: Library to work with XBee modules
  This is a high level library, writen in Python and C++, for accessing
  XBee modules. It makes simple create, manage and comunicate between
