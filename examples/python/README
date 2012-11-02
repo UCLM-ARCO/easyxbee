@@ -1,9 +1,7 @@
-To make this run:
+To make python examples run:
 
  $ cd src
  $ export PYTHONPATH=$(pwd)
- $ cd ../examples
+ $ cd ../examples/python
  
 and launch whatever you need.
-
-

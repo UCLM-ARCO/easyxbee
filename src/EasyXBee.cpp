@@ -20,9 +20,20 @@
 //
 
 
-#include "easyxbee.h"
+#include <Arduino.h>
+#include "EasyXBee.h"
 
 #define RESPONSE_TIMEOUT 1000  // in ms
+
+//
+// Initialize Serial communications and setup EasyXBee and XBee
+// modules. Call to this method on 'setup()'.
+//
+void
+EasyXBee::begin(uint16_t rate) {
+    Serial.begin(rate);
+    xbee.setSerial(Serial);
+}
 
 //
 // Wait until node is successfully joined to a network (i.e. AI

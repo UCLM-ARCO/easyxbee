@@ -26,6 +26,7 @@
 
 class EasyXBee {
 public:
+    void begin(uint16_t rate);
     void wait_until_ready();
 
     bool receive(uint8_t** data, uint8_t* size);
@@ -39,6 +40,7 @@ private:
     bool send_and_check_at_command(AtCommandRequest& request);
     uint8_t get_next_frame_id();
 
+    XBee xbee;
     uint8_t frame_id = DEFAULT_FRAME_ID;
 };
 

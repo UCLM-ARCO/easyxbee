@@ -1,3 +1,9 @@
+easyxbee (0.2-1) unstable; urgency=low
+
+  * New upstream wich adds methods to initialize module
+
+ -- Oscar Aceña Herrera <oscaracena@gmail.com>  Fri, 02 Nov 2012 16:49:38 +0100
+
 easyxbee (0.1-1) unstable; urgency=low
 
   * Initial release;
