@@ -20,10 +20,10 @@
 //
 
 
-#include <Arduino.h>
 #include "EasyXBee.h"
 
-#define RESPONSE_TIMEOUT 1000  // in ms
+#define NODE_DISCOVERY_TIMEOUT 6000  // in ms
+#define RESPONSE_TIMEOUT       1000  // in ms
 
 //
 // Initialize Serial communications and setup EasyXBee and XBee
@@ -102,11 +102,11 @@ EasyXBee::receive(uint8_t** data, uint8_t* size) {
 // responds, it will return false.
 //
 bool
-EasyXBee::send(XBeeAddress64& addr64, uint16_t* addr16, uint8_t* data, uint8_t size) {
+EasyXBee::send(XBeeAddress64& addr64, uint16_t addr16, uint8_t* data, uint8_t size) {
     ZBTxRequest request(addr64, data, size);
     ZBTxStatusResponse response;
 
-    request.setAddress16(*addr16);
+    request.setAddress16(addr16);
     request.setFrameId(get_next_frame_id());
     xbee.send(request);
 
