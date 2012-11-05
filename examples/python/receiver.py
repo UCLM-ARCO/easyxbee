@@ -3,10 +3,20 @@
 
 from EasyXBee import LocalNode
 
-node = LocalNode(tty='/dev/ttyUSB1')
-node.set_pan_id(0x2012)
-node.set_name("receiver")
+serial = '/dev/ttyUSB1'
+pan_id = 'mypan'
+name = 'pcnode'
+
+print ("SETUP node...\n - PAN id: {}\n - name: {}\n - port: {}\n"
+       .format(pan_id, name, serial))
+
+node = LocalNode(tty=serial)
+node.set_pan_id(pan_id)
+node.set_name(name)
 node.write_config()
+
+
+print "OK, listen events..."
 
 while True:
     try:
