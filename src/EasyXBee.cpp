@@ -26,6 +26,13 @@
 #define RESPONSE_TIMEOUT       1000  // in ms
 
 //
+// Default constructor, just init this class attributes.
+//
+EasyXBee::EasyXBee() :
+  frame_id(DEFAULT_FRAME_ID) {
+}
+
+//
 // Initialize Serial communications and setup EasyXBee and XBee
 // modules. Call to this method on 'setup()'.
 //

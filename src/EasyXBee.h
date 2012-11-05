@@ -27,6 +27,7 @@
 
 class EasyXBee {
 public:
+    EasyXBee();
     void begin(uint16_t rate);
     void wait_until_ready();
 
@@ -42,7 +43,7 @@ private:
     uint8_t get_next_frame_id();
 
     XBee xbee;
-    uint8_t frame_id = DEFAULT_FRAME_ID;
+    uint8_t frame_id;
 };
 
 #endif // EASYXBEE_H
