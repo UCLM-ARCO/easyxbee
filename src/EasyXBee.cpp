@@ -182,9 +182,9 @@ EasyXBee::lookup(uint8_t* name, uint8_t size, XBeeAddress64* addr64, uint16_t* a
 // effective.
 //
 bool
-EasyXBee::set_pan_id(uint8_t* pan_id) {
+EasyXBee::set_pan_id(uint8_t* pan_id, uint8_t size) {
     uint8_t cmd[] = {'I', 'D'};
-    AtCommandRequest request(cmd, pan_id, 8);
+    AtCommandRequest request(cmd, pan_id, size);
 
     return send_and_check_at_command(request);
 }
