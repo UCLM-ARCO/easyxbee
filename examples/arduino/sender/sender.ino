@@ -6,54 +6,110 @@
 // sketch's includes. For more information, see http://goo.gl/EpFSw
 #include <XBee.h>
 
+#include <SoftwareSerial.h>
 #include <EasyXBee.h>
 
 #define LED 13
 EasyXBee xbee;
+SoftwareSerial logger(2, 3); // Rx, Tx
+
+XBeeAddress64 addr64;
+uint16_t addr16;
 
 void
 flash_led(int times, int wait) {
-  for (int i = 0; i < times; i++) {
-    digitalWrite(LED, HIGH);
-    delay(wait);
-    digitalWrite(LED, LOW);
+    for (int i = 0; i < times; i++) {
+	digitalWrite(LED, HIGH);
+	delay(wait);
+	digitalWrite(LED, LOW);
 
-    if (i + 1 < times) {
-      delay(wait);
+	if (i + 1 < times) {
+	    delay(wait);
+	}
     }
-  }
 }
 
 void setup() {
     pinMode(LED, OUTPUT);
-
+    logger.begin(9600);
     xbee.begin(9600);
+
+    uint8_t panid[] = "network";
+    uint8_t name[]  = "coordinator";
+
+    // join a pan
+    logger.write("\n\nchanging pan id... ");
+    logger.flush();
+    if (not xbee.set_pan_id(panid)) {
+    	logger.write("\n -- xbee.set_pan_id() FAILED\n");
+    	digitalWrite(LED, HIGH);
+    	while(true);
+    }
+    logger.write("OK\n");
+
+    // wait until ready
+    logger.write("wait for joining network... ");
+    logger.flush();
     xbee.wait_until_ready();
-
     flash_led(3, 50);
-}
+    logger.write("OK\n");
 
-void loop() {
-    uint8_t name[] = "receiver";
-    uint8_t data[] = "Hello World!\n";
-    XBeeAddress64 addr64;
-    uint16_t addr16;
-
-    // try to resolve the name of the other peer...
-    if (not xbee.lookup(name, 7, &addr64, &addr16)) {
-
-	// not resolved; fire LED and stops
+    // resolve the name of the other peer...
+    logger.write("resolve destination... ");
+    logger.flush();
+    if (not xbee.lookup(name, 11, &addr64, &addr16)) {
+    	logger.write("\n -- xbee.lookup() FAILED\n");
       	digitalWrite(LED, HIGH);
  	while(true);
     }
 
-    // try to send data...
-    if (not xbee.send(addr64, addr16, data, 14)) {
-
-	// could not send; fire LED and stops
-	digitalWrite(LED, HIGH);
-	while(true);
+    // print 64-bit address of resolved node
+    {
+	logger.write("\n -- addr64: ");
+	uint32_t msb = addr64.getMsb();
+	uint32_t lsb = addr64.getLsb();
+	uint8_t aux;
+	for (int i=0; i<4; i++) {
+	    aux = *(((uint8_t*)&msb) + i);
+	    logger.print((int)aux, HEX);
+	    logger.write(" ");
+	}
+	for (int i=0; i<4; i++) {
+	    aux = *(((uint8_t*)&lsb) + i);
+	    logger.print((int)aux, HEX);
+	    logger.write(" ");
+	}
     }
 
+    // print 16-bit address of resolved node
+    {
+	logger.write(", -- addr16: ");
+	uint8_t aux;
+	for (int i=0; i<2; i++) {
+	    aux = *(((uint8_t*)&addr16) + i);
+	    logger.print((int)aux, HEX);
+	    logger.write(" ");
+	}
+    }
+
+    logger.write(" -> OK\n");
+    logger.write("setup() done\n\n");
+}
+
+void
+loop() {
+    uint8_t data[]  = "Hello World!\n";
+
+    logger.write("sending data... ");
+    logger.flush();
+
+    if (not xbee.send(addr64, 0, data, 14)) {
+    	logger.write("\n -- xbee.send() FAILED\n");
+    	digitalWrite(LED, HIGH);
+    	while(true);
+    }
+    logger.write("OK\n");
+
+    flash_led(1, 50);
     delay(1000);
 }

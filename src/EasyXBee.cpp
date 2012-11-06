@@ -19,7 +19,6 @@
 // along with EasyXBee.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-
 #include "EasyXBee.h"
 
 #define NODE_DISCOVERY_TIMEOUT 6000  // in ms
@@ -160,9 +159,28 @@ EasyXBee::lookup(uint8_t* name, uint8_t size, XBeeAddress64* addr64, uint16_t* a
 		&& response.getApiId() == AT_COMMAND_RESPONSE
 		&& response.getFrameId() == request.getFrameId()) {
 
-		*addr16 = *((uint16_t*)response.getValue());
-		addr64->setMsb(*((uint32_t*)(response.getValue() + 2)));
-		addr64->setLsb(*((uint32_t*)(response.getValue() + 6)));
+		// data from network will be Big Endian, convert to Little Endian
+		// FIXME: search a better solution!!
+		uint32_t msb = 0;
+		uint32_t lsb = 0;
+		uint8_t* data = response.getValue();
+
+		*addr16 = *(data++);
+		*addr16 <<= 8;
+		*addr16 += *(data++);
+
+		for (short i=0; i<4; i++) {
+		    msb += *data++;
+		    if (i<3) msb <<= 8;
+		}
+
+		for (short i=0; i<4; i++) {
+		    lsb += *data++;
+		    if (i<3) lsb <<= 8;
+		}
+
+		addr64->setMsb(msb);
+		addr64->setLsb(lsb);
 
 		return true;
 	    }
@@ -176,15 +194,15 @@ EasyXBee::lookup(uint8_t* name, uint8_t size, XBeeAddress64* addr64, uint16_t* a
 
 //
 // This method will try to set the PAN identifier for this node (ATID
-// command). Maximum: 8 chars. If success, it will return true, and
-// false otherwise. It is recommended to call 'wait_until_ready()'
-// method after changing the PAN id, to assure that changes are
-// effective.
+// command). 'pan_id' must contain 8 chars of data (if needed, add
+// paddings with '0's). If success, it will return true, and false
+// otherwise. It is recommended to call 'wait_until_ready()' method
+// after changing the PAN id, to assure that changes are effective.
 //
 bool
-EasyXBee::set_pan_id(uint8_t* pan_id, uint8_t size) {
+EasyXBee::set_pan_id(uint8_t* pan_id) {
     uint8_t cmd[] = {'I', 'D'};
-    AtCommandRequest request(cmd, pan_id, size);
+    AtCommandRequest request(cmd, pan_id, 8);
 
     return send_and_check_at_command(request);
 }

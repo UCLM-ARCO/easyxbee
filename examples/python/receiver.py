@@ -4,8 +4,8 @@
 from EasyXBee import LocalNode
 
 serial = '/dev/ttyUSB1'
-pan_id = 'mypan'
-name = 'pcnode'
+pan_id = 'net'
+name   = 'coordinator'
 
 print ("SETUP node...\n - PAN id: {}\n - name: {}\n - port: {}\n"
        .format(pan_id, name, serial))

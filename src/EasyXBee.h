@@ -35,7 +35,7 @@ public:
     bool send(XBeeAddress64& addr64, uint16_t addr16, uint8_t* data, uint8_t size);
 
     bool lookup(uint8_t* name, uint8_t size, XBeeAddress64* addr64, uint16_t* addr16);
-    bool set_pan_id(uint8_t* pan_id, uint8_t size);
+    bool set_pan_id(uint8_t* pan_id);
     bool set_name(uint8_t* name, uint8_t size);
 
 private:
