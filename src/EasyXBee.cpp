@@ -108,7 +108,11 @@ EasyXBee::receive(uint8_t** data, uint8_t* size) {
 // responds, it will return false.
 //
 bool
-EasyXBee::send(XBeeAddress64& addr64, uint16_t addr16, uint8_t* data, uint8_t size) {
+EasyXBee::send(XBeeAddress64& addr64,
+	       uint16_t addr16,
+	       uint8_t* data,
+	       uint8_t size) {
+
     ZBTxRequest request(addr64, data, size);
     ZBTxStatusResponse response;
 
@@ -159,7 +163,7 @@ EasyXBee::lookup(uint8_t* name, uint8_t size, XBeeAddress64* addr64, uint16_t* a
 		&& response.getApiId() == AT_COMMAND_RESPONSE
 		&& response.getFrameId() == request.getFrameId()) {
 
-		// data from network will be Big Endian, convert to Little Endian
+		// data from network is Big Endian, convert to Little Endian
 		// FIXME: search a better solution!!
 		uint32_t msb = 0;
 		uint32_t lsb = 0;
