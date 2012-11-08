@@ -2,15 +2,54 @@
 # -*- mode: python; coding: utf-8 -*-
 
 import sys
+import argparse
+
 from EasyXBee import LocalNode
 
-if len(sys.argv) != 3:
-    print "Usage: {} node message".format(sys.argv[0])
-    sys.exit(1)
 
-local = LocalNode(tty='/dev/ttyUSB1')
-local.set_pan_id(0x2012)
-remote = local.lookup(sys.argv[1])
+class Sender:
+    def __init__(self, device, panid):
+        self.local = LocalNode(tty=device)
+        self.local.set_pan_id(panid)
+        self.remote = None
 
-remote.send(sys.argv[2])
+    def set_destination(self, name):
+        self.remote = self.local.lookup(name)
+        if self.remote is None:
+            print "ERROR, unknown destination"
+            sys.exit(-1)
 
+    def send_text(self, message):
+        assert not self.remote is None
+        self.remote.send(message)
+
+    def send_file(self, filename):
+        with file(filename) as src:
+            self.send_text(src.read())
+
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(
+        description = "Send data to a XBee node")
+
+    parser.add_argument('-d', dest='device', default="/dev/ttyUSB1",
+                        help="device where my XBee is attached")
+    parser.add_argument('-p', dest='panid', default="net",
+                        help="PAN identifier on wich search node")
+
+    parser.add_argument('-m', dest='message',
+                        help="string to send")
+    parser.add_argument('-i', dest='input_file',
+                        help="input file to send")
+
+    parser.add_argument('node', help="name of destination node")
+
+    args = parser.parse_args()
+    s = Sender(args.device, args.panid)
+    s.set_destination(args.node)
+
+    if args.message:
+        s.send_text(args.message)
+    if args.input_file:
+        s.send_file(args.input_file)

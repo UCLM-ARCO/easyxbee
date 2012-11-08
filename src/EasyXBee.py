@@ -208,7 +208,8 @@ class LocalNode(object):
 
         response = self.device.receive_frame()
         if response['status'] != '\x00':
-            raise CommandError(response)
+            # node not found
+            return None
 
         node = RemoteNode.create_from_dn_response(self.device, response)
         node.name = name
