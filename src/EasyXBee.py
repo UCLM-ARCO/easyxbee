@@ -51,7 +51,7 @@ class XBeeDevice(object):
 
         response = self.xbee.wait_read_frame()
         if response['status'] != '\x00':
-            raise CommandError(response);
+            raise CommandError(response)
         return response
 
     def send_data(self, addr, addr_long, data):
@@ -248,7 +248,5 @@ class LocalNode(object):
     def receive(self):
         while True:
             message = self.device.receive_frame()
-            if message.has_key('rf_data'):
+            if 'rf_data' in message:
                 return message['rf_data']
-
-
