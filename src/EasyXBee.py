@@ -173,10 +173,14 @@ class LocalNode(object):
         self.device.send_command("ID", value)
 
         # this command sends two frames, discards the second
-        self.device.receive_frame()
+        # FIXME: this will block, if no message is sent (fix it maybe
+        # using a reading thread?)
+        # self.device.receive_frame()
 
-    def get_pan_id(self):
+    def get_pan_id(self, unpack=True):
         response = self.device.send_command("ID")
+        if not unpack:
+            return response['parameter']
         return struct.unpack('>Q', response['parameter'])[0]
 
     def get_my_address(self):

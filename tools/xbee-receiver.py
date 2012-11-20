@@ -1,0 +1,39 @@
+#!/usr/bin/python
+# -*- mode: python; coding: utf-8 -*-
+
+import sys
+import argparse
+
+from EasyXBee import LocalNode
+
+
+class Receiver:
+    def __init__(self, device, panid):
+        self.local = LocalNode(tty=device)
+        if panid:
+            self.local.set_pan_id(panid)
+
+    def run(self):
+        print "Waiting events..."
+
+        while True:
+            try:
+                print list(self.local.receive())
+            except KeyboardInterrupt:
+                print "\rBye!"
+                break
+
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(
+        description = "Receive data from other XBee node")
+
+    parser.add_argument('-d', dest='device', default="/dev/ttyUSB0",
+                        help="device where my XBee is attached")
+    parser.add_argument('-p', dest='panid', default="net",
+                        help="PAN identifier on wich search node")
+
+    args = parser.parse_args()
+    s = Receiver(args.device, args.panid)
+    s.run()
