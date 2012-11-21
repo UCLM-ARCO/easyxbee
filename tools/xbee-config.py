@@ -3,6 +3,7 @@
 
 import sys
 import argparse
+import time
 
 from EasyXBee import LocalNode
 
@@ -13,11 +14,11 @@ class SetupTool:
         self.args = args
 
     def run(self):
-        if not self.check_options():
+        if self.show_info():
             return
-
-        if self.args.info:
-            self.show_info()
+        if self.check_config():
+            return
+        if self.reset_device():
             return
 
         self.config_panid()
@@ -25,32 +26,73 @@ class SetupTool:
         self.write_configuration()
 
     def show_info(self):
+        if not self.args.info:
+            return False
+
+        api_level = self.local.get_api_level()
+        sleep_mode = self.local.get_sleep_mode()
         panid = self.local.get_pan_id(False)
         name = self.local.get_name()
+        role = self.local.get_role()[1]
+
+        if sleep_mode == -1:
+            sleep_mode = "<not available>"
 
         print ("Current info:\n"
-               " - PAN id: '{}'\n"
-               " - name: '{}'".format(panid, name))
+               " - Role: {}\n".format(role) +
+               " - PAN id: '{}'\n".format(panid) +
+               " - Name: '{}'\n".format(name) +
+               " - API level: {}\n".format(api_level) +
+               " - Sleep mode: {}\n".format(sleep_mode))
 
-    def check_options(self):
-        if (self.args.panid or
-            self.args.nodename or
-            self.args.info or
-            self.args.save) :
-            return True
+        return True
 
-        print "No options given, nothing to do."
-        return False
+    def check_config(self):
+        if not self.args.check:
+            return False
+
+        api_level = self.local.get_api_level()
+        sleep_mode = self.local.get_sleep_mode()
+        print "Device: {}, API Level: {}, sleep mode: {}".format(
+            self.args.device, api_level, sleep_mode)
+
+        if api_level == 1 and sleep_mode == 0:
+            print "It seems correct!"
+        else:
+            if api_level != 1:
+                print "API Level not compatible with this library"
+            elif sleep_mode != 0:
+                print ("Sleep mode enabled, this will cause many delays "
+                       "when communicating with device")
+
+        return True
+
+    def reset_device(self):
+        if not self.args.reset:
+            return False
+
+        print "Resetting device...",
+        sys.stdout.flush()
+
+        self.local.reset_device()
+        time.sleep(2)
+
+        print "Done"
+        return True
 
     def config_panid(self):
-        if self.args.panid:
-            print "Setting PAN identifier to '{}'".format(self.args.panid)
-            self.local.set_pan_id(self.args.panid)
+        if not self.args.panid:
+            return
+
+        print "Setting PAN identifier to '{}'".format(self.args.panid)
+        self.local.set_pan_id(self.args.panid)
 
     def config_name(self):
-        if self.args.nodename:
-            print "Setting node name to '{}'".format(self.args.nodename)
-            self.local.set_name(self.args.nodename)
+        if not self.args.nodename:
+            return
+
+        print "Setting node name to '{}'".format(self.args.nodename)
+        self.local.set_name(self.args.nodename)
 
     def write_configuration(self):
         if self.args.save:
@@ -73,10 +115,14 @@ if __name__ == "__main__":
     parser.add_argument('-n', dest='nodename',
                         help="Name for this device")
 
+    parser.add_argument('-r', dest='reset', action='store_true',
+                        help="Make a software reset on device")
     parser.add_argument('-i', dest='info', action='store_true',
                         help="Show current configuration")
     parser.add_argument('-s', dest='save', action='store_true',
                         help="Save changes permanently")
+    parser.add_argument('-c', dest='check', action='store_true',
+                        help="Check for correct settings")
 
     args = parser.parse_args()
     s = SetupTool(args)

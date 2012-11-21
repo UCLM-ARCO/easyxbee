@@ -183,6 +183,25 @@ class LocalNode(object):
             return response['parameter']
         return struct.unpack('>Q', response['parameter'])[0]
 
+    def get_api_level(self):
+        response = self.device.send_command("AP")
+        return ord(response['parameter'])
+
+    def get_role(self):
+        response = self.device.send_command("VR")
+        fver = hex(struct.unpack('>H', response['parameter'])[0])
+        return {'1': (0, 'coordinator'),
+                '3': (1, 'router'),
+                '9': (2, 'end device')}[fver[3]]
+
+    def get_sleep_mode(self):
+        # Coordinator doesn't have sleep modes
+        if self.get_role()[0] == 0:
+            return -1
+
+        response = self.device.send_command("SM")
+        return ord(response['parameter'])
+
     def get_my_address(self):
         response = self.device.send_command("MY")
         return struct.unpack('>H', response['parameter'])[0]
@@ -199,6 +218,13 @@ class LocalNode(object):
 
     def write_config(self):
         self.device.send_command("WR")
+
+    def reset_device(self):
+        self.device.send_command("FR")
+
+    def is_alive(self):
+        self.device.send_command("VR")
+        return True
 
     def lookup(self, name):
         self.device.send_command("DN", str(name), wait_response=False)
