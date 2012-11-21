@@ -66,6 +66,9 @@ class XBeeDevice(object):
     def receive_frame(self):
         return self.xbee.wait_read_frame()
 
+    def data_available(self):
+        return self.serial.inWaiting() > 0
+
     def get_max_payload_size(self):
         response = self.send_command("NP")
         return struct.unpack(">H", response['parameter'])[0]
