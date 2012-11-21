@@ -1,3 +1,4 @@
 src/*.cpp  /usr/share/arduino/libraries/EasyXBee
 src/*.h    /usr/share/arduino/libraries/EasyXBee
-examples   /usr/share/doc/easyxbee/
+examples   /usr/share/doc/easyxbee
+tools      /usr/share/easyxbee
