@@ -1,0 +1,6 @@
+
+To use Python version of EasyXBee, you will need to install the xbee
+module for Python. From now, it is only available using pip:
+
+  $ sudo pip install xbee
+
