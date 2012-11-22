@@ -37,6 +37,7 @@ public:
     bool lookup(uint8_t* name, uint8_t size, XBeeAddress64* addr64, uint16_t* addr16);
     bool set_pan_id(uint8_t* pan_id);
     bool set_name(uint8_t* name, uint8_t size);
+    bool write_config();
 
 private:
     bool send_and_check_at_command(AtCommandRequest& request);

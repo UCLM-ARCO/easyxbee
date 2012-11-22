@@ -226,6 +226,19 @@ EasyXBee::set_name(uint8_t* name, uint8_t size) {
 }
 
 //
+// This method will make all changes permanent (writing configuration
+// on internal storage). It will return true if success, false
+// otherwise.
+//
+bool
+EasyXBee::write_config() {
+    uint8_t cmd[] = {'W', 'R'};
+    AtCommandRequest request(cmd);
+
+    return send_and_check_at_command(request);
+}
+
+//
 // Helper method to send an AT Request command, and wait for
 // response. If response is OK, return true. If not response is
 // received from within RESPONSE_TIMEOUT, or response is not OK, it
