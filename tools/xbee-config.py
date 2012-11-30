@@ -56,7 +56,7 @@ class SetupTool:
         print "Device: {}, API Level: {}, sleep mode: {}".format(
             self.args.device, api_level, sleep_mode)
 
-        if api_level == 1 and sleep_mode == 0:
+        if api_level == 1 and sleep_mode <= 0:
             print "It seems correct!"
         else:
             if api_level != 1:
