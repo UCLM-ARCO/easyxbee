@@ -29,7 +29,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description = "Receive data from other XBee node")
 
-    parser.add_argument('-d', dest='device', default="/dev/ttyUSB0",
+    parser.add_argument('-d', dest='device', default="/dev/ttyUSB1",
                         help="device where my XBee is attached")
     parser.add_argument('-p', dest='panid', default="net",
                         help="PAN identifier on wich search node")

@@ -37,7 +37,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description = "Discover other nodes")
 
-    parser.add_argument('-d', dest='device', default="/dev/ttyUSB0",
+    parser.add_argument('-d', dest='device', default="/dev/ttyUSB1",
                         help="device where my XBee is attached")
 
     args = parser.parse_args()
