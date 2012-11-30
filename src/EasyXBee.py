@@ -66,7 +66,11 @@ class XBeeDevice(object):
     def receive_frame(self):
         return self.xbee.wait_read_frame()
 
-    def data_available(self):
+    def data_available(self, timeout=0):
+        for i in range(int(timeout * 10)):
+            time.sleep(0.1)
+            if self.serial.inWaiting() > 0:
+                return True
         return self.serial.inWaiting() > 0
 
     def get_max_payload_size(self):
@@ -176,9 +180,8 @@ class LocalNode(object):
         self.device.send_command("ID", value)
 
         # this command sends two frames, discards the second
-        # FIXME: this will block, if no message is sent (fix it maybe
-        # using a reading thread?)
-        # self.device.receive_frame()
+        if self.device.data_available(0.5):
+            self.device.receive_frame()
 
     def get_pan_id(self, unpack=True):
         response = self.device.send_command("ID")
