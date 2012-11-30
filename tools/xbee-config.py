@@ -60,9 +60,9 @@ class SetupTool:
             print "It seems correct!"
         else:
             if api_level != 1:
-                print "API Level not compatible with this library"
-            elif sleep_mode != 0:
-                print ("Sleep mode enabled, this will cause many delays "
+                print "- API Level not compatible with this library"
+            if sleep_mode > 0:
+                print ("- Sleep mode enabled, this will cause many delays "
                        "when communicating with device")
 
         return True
