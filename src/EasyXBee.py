@@ -50,7 +50,7 @@ class XBeeDevice(object):
             return
 
         response = self.xbee.wait_read_frame()
-        if response['status'] != '\x00':
+        if response.get('status') != '\x00':
             raise CommandError(response)
         return response
 
@@ -156,7 +156,7 @@ class RemoteNode(object):
 
 
 class LocalNode(object):
-    def __init__(self, device=None, tty='/dev/ttyUSB0', speed=9600):
+    def __init__(self, device=None, tty='/dev/ttyUSB0', speed=57600):
         if device is None:
             device = XBeeDevice(tty, speed)
         else:
@@ -243,7 +243,7 @@ class LocalNode(object):
             raise HardwareError("Module XBee not responding")
 
         response = self.device.receive_frame()
-        if response['status'] != '\x00':
+        if response.get('status') != '\x00':
             # node not found
             return None
 
@@ -269,7 +269,7 @@ class LocalNode(object):
                 break
 
             response = self.device.receive_frame()
-            if response['status'] != '\x00':
+            if response.get('status') != '\x00':
                 raise CommandError(response)
             nodes.append(RemoteNode.create_from_nd_response(self.device, response))
 
