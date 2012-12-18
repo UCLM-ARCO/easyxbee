@@ -10,7 +10,7 @@ from EasyXBee import LocalNode
 
 class SetupTool:
     def __init__(self, args):
-        self.local = LocalNode(tty=args.device)
+        self.local = LocalNode(tty=args.device, speed=args.speed)
         self.args = args
 
     def run(self):
@@ -109,6 +109,8 @@ if __name__ == "__main__":
 
     parser.add_argument('-d', dest='device', default="/dev/ttyUSB1",
                         help="Device where the XBee module is attached")
+    parser.add_argument('-b', dest='speed', default="9600",
+                        help="Speed for serial device")
 
     parser.add_argument('-p', dest='panid',
                         help="PAN identifier")

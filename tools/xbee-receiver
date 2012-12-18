@@ -8,8 +8,8 @@ from EasyXBee import LocalNode
 
 
 class Receiver:
-    def __init__(self, device, panid):
-        self.local = LocalNode(tty=device)
+    def __init__(self, device, speed, panid):
+        self.local = LocalNode(tty=device, speed=speed)
         if panid:
             self.local.set_pan_id(panid)
 
@@ -31,7 +31,10 @@ if __name__ == "__main__":
 
     parser.add_argument('-d', dest='device', default="/dev/ttyUSB1",
                         help="device where my XBee is attached")
-    parser.add_argument('-p', dest='panid', default="net",
+    parser.add_argument('-b', dest='speed', default="9600",
+                        help="Speed for serial device")
+
+    parser.add_argument('-p', dest='panid', default="",
                         help="PAN identifier on wich search node")
 
     args = parser.parse_args()

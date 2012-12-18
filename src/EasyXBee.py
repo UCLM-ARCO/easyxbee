@@ -156,7 +156,7 @@ class RemoteNode(object):
 
 
 class LocalNode(object):
-    def __init__(self, device=None, tty='/dev/ttyUSB0', speed=57600):
+    def __init__(self, device=None, tty='/dev/ttyUSB0', speed=9600):
         if device is None:
             device = XBeeDevice(tty, speed)
         else:

@@ -8,10 +8,9 @@ from EasyXBee import LocalNode
 
 
 class Discoverer:
-    def __init__(self, device):
+    def __init__(self, device, speed):
         self._device = device
-
-        self.local = LocalNode(tty=device)
+        self.local = LocalNode(tty=device, speed=speed)
 
     def run(self):
         print "Device: '{}'".format(self._device)
@@ -39,8 +38,10 @@ if __name__ == "__main__":
 
     parser.add_argument('-d', dest='device', default="/dev/ttyUSB1",
                         help="device where my XBee is attached")
+    parser.add_argument('-b', dest='speed', default="9600",
+                        help="Speed for serial device")
 
     args = parser.parse_args()
-    s = Discoverer(args.device)
+    s = Discoverer(args.device, args.speed)
     s.run()
 
