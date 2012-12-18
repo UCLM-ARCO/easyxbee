@@ -8,10 +8,10 @@ from EasyXBee import LocalNode
 
 
 class Receiver:
-    def __init__(self, device, speed, panid):
-        self.local = LocalNode(tty=device, speed=speed)
-        if panid:
-            self.local.set_pan_id(panid)
+    def __init__(self, args):
+        self.local = LocalNode(tty=args.device, speed=args.speed)
+        if args.panid:
+            self.local.set_pan_id(args.panid)
 
     def run(self):
         print "Waiting events..."
@@ -38,5 +38,5 @@ if __name__ == "__main__":
                         help="PAN identifier on wich search node")
 
     args = parser.parse_args()
-    s = Receiver(args.device, args.panid)
+    s = Receiver(args)
     s.run()
