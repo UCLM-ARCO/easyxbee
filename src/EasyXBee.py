@@ -24,6 +24,7 @@ import serial
 import struct
 import time
 from select import select
+from collections import deque
 
 
 class CommandError(Exception):
@@ -46,9 +47,31 @@ class XBeeDevice(object):
     def __init__(self, tty='/dev/ttyUSB0', speed=9600):
         self.serial = serial.Serial(tty, speed)
         self.xbee = ZigBee(self.serial)
+        self.msg_buffer = deque(maxlen=25)
 
     def __del__(self):
         self.serial.close()
+
+    def wait_read_frame(self, expected_id, expected_cmd=None):
+        if not expected_cmd is None:
+            expected_cmd = expected_cmd.lower()
+
+        while True:
+            while self.data_available():
+                frame = self.xbee.wait_read_frame()
+                self.msg_buffer.append(frame)
+
+            for i in reversed(range(len(self.msg_buffer))):
+                frame = self.msg_buffer[i]
+                frame_cmd = frame.get('command')
+                if not frame_cmd is None:
+                    frame_cmd = frame_cmd.lower()
+                frame_id = frame.get('id')
+
+                if (frame_id == expected_id):
+                    if (expected_cmd is None or expected_cmd == frame_cmd):
+                        self.msg_buffer.remove(frame)
+                        return frame
 
     def send_command(self, cmd, param=None, wait_response=True):
         self.xbee.at(command=cmd, parameter=param)
@@ -56,7 +79,7 @@ class XBeeDevice(object):
         if not wait_response:
             return
 
-        response = self.xbee.wait_read_frame()
+        response = self.wait_read_frame('at_response', cmd)
         if response.get('status') != '\x00':
             raise CommandError(response)
         return response
@@ -67,12 +90,13 @@ class XBeeDevice(object):
 
         self.xbee.send('tx', dest_addr_long=addr_long,
                        dest_addr=addr, data=data)
-        response = self.xbee.wait_read_frame()
+
+        response = self.wait_read_frame('tx_status')
         if response.get('deliver_status') != '\x00':
             raise CommandError(response)
 
     def receive_frame(self):
-        return self.xbee.wait_read_frame()
+        return self.wait_read_frame('rx')
 
     def data_available(self, timeout=0):
         for i in range(int(timeout * 10)):
@@ -189,9 +213,9 @@ class LocalNode(object):
         value = struct.pack('>Q', value)
         self.device.send_command("ID", value)
 
-        # this command sends two frames, discards the second
-        if self.device.data_available(0.5):
-            self.device.receive_frame()
+        # # this command sends two frames, discards the second
+        # if self.device.data_available(0.5):
+        #     self.device.wait_read_frame('at_response')
 
     def get_pan_id(self, unpack=True):
         response = self.device.send_command("ID")
@@ -250,16 +274,16 @@ class LocalNode(object):
         return True
 
     def lookup(self, name):
-        self.device.send_command("DN", str(name), wait_response=False)
-
         timeout = float(self.get_node_discovery_timeout())
         timeout = timeout / 1000 + 0.25
+
+        self.device.send_command("DN", str(name), wait_response=False)
         rlist = select([self.device.serial], [], [], timeout)[0]
 
         if not rlist:
             raise HardwareError("Module XBee not responding")
 
-        response = self.device.receive_frame()
+        response = self.device.wait_read_frame('at_response')
         if response.get('status') != '\x00':
             # node not found
             return None
@@ -285,7 +309,7 @@ class LocalNode(object):
             if not rlist:
                 break
 
-            response = self.device.receive_frame()
+            response = self.device.wait_read_frame('at_response')
             if response.get('status') != '\x00':
                 raise CommandError(response)
             nodes.append(
@@ -303,5 +327,6 @@ class LocalNode(object):
     def receive(self):
         while True:
             message = self.device.receive_frame()
-            if 'rf_data' in message:
-                return message['rf_data']
+            data = message.get('rf_data')
+            if data:
+                return data
