@@ -1,3 +1,10 @@
+easyxbee (0.6-1) unstable; urgency=low
+
+  * New upstream release
+  * Avoid raising exceptions, get only interesting messages
+
+ -- Oscar Aceña Herrera <oscaracena@gmail.com>  Wed, 09 Jan 2013 11:46:28 +0100
+
 easyxbee (0.5-1) unstable; urgency=low
 
   * New upstream release
