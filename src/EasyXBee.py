@@ -35,6 +35,13 @@ class HardwareError(Exception):
     pass
 
 
+def get_parameter(response):
+    data = response.get('parameter')
+    if data is None:
+        raise CommandError(response)
+    return data
+
+
 class XBeeDevice(object):
     def __init__(self, tty='/dev/ttyUSB0', speed=9600):
         self.serial = serial.Serial(tty, speed)
@@ -58,9 +65,10 @@ class XBeeDevice(object):
         addr = struct.pack('>H', addr)
         addr_long = struct.pack('>Q', addr_long)
 
-        self.xbee.send('tx', dest_addr_long=addr_long, dest_addr=addr, data=data)
+        self.xbee.send('tx', dest_addr_long=addr_long,
+                       dest_addr=addr, data=data)
         response = self.xbee.wait_read_frame()
-        if response['deliver_status'] != '\x00':
+        if response.get('deliver_status') != '\x00':
             raise CommandError(response)
 
     def receive_frame(self):
@@ -75,7 +83,8 @@ class XBeeDevice(object):
 
     def get_max_payload_size(self):
         response = self.send_command("NP")
-        return struct.unpack(">H", response['parameter'])[0]
+        size = get_parameter(response)
+        return struct.unpack(">H", size)[0]
 
 
 class RemoteNode(object):
@@ -109,7 +118,8 @@ class RemoteNode(object):
     @classmethod
     def create_from_nd_response(cls, device, response):
         node = RemoteNode(device)
-        data = response['parameter']
+        data = get_parameter(response)
+
         i = 0
 
         # MY (2 Bytes)
@@ -144,7 +154,7 @@ class RemoteNode(object):
     @classmethod
     def create_from_dn_response(cls, device, response):
         node = RemoteNode(device)
-        data = response['parameter']
+        data = get_parameter(response)
 
         # MY (2 Bytes)
         node.my_addr = struct.unpack(">H", data[:2])[0]
@@ -185,17 +195,22 @@ class LocalNode(object):
 
     def get_pan_id(self, unpack=True):
         response = self.device.send_command("ID")
+        pan = get_parameter(response)
+
         if not unpack:
-            return response['parameter']
-        return struct.unpack('>Q', response['parameter'])[0]
+            return pan
+        return struct.unpack('>Q', pan)[0]
 
     def get_api_level(self):
         response = self.device.send_command("AP")
-        return ord(response['parameter'])
+        level = get_parameter(response)
+        return ord(level)
 
     def get_role(self):
         response = self.device.send_command("VR")
-        fver = hex(struct.unpack('>H', response['parameter'])[0])
+        role = get_parameter(response)
+
+        fver = hex(struct.unpack('>H', role)[0])
         return {'1': (0, 'coordinator'),
                 '3': (1, 'router'),
                 '9': (2, 'end device')}[fver[3]]
@@ -206,15 +221,17 @@ class LocalNode(object):
             return -1
 
         response = self.device.send_command("SM")
-        return ord(response['parameter'])
+        mode = get_parameter(response)
+        return ord(mode)
 
     def get_my_address(self):
         response = self.device.send_command("MY")
-        return struct.unpack('>H', response['parameter'])[0]
+        addr = get_parameter(response)
+        return struct.unpack('>H', addr)[0]
 
     def get_name(self):
         response = self.device.send_command("NI")
-        return response['parameter']
+        return get_parameter(response)
 
     def set_name(self, name):
         if self.get_name() == name:
@@ -271,7 +288,8 @@ class LocalNode(object):
             response = self.device.receive_frame()
             if response.get('status') != '\x00':
                 raise CommandError(response)
-            nodes.append(RemoteNode.create_from_nd_response(self.device, response))
+            nodes.append(
+                RemoteNode.create_from_nd_response(self.device, response))
 
         return nodes
 
@@ -279,7 +297,8 @@ class LocalNode(object):
         response = self.device.send_command("NT")
 
         # NT is multiplied by 100 to get the real time, in ms
-        return struct.unpack(">H", response['parameter'])[0] * 100
+        timeout = get_parameter(response)
+        return struct.unpack(">H", timeout)[0] * 100
 
     def receive(self):
         while True:
