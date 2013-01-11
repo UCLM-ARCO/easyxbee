@@ -24,8 +24,8 @@
 
 
 
-// REMOVE THIS!
-#include "debug.h"
+// // REMOVE THIS!
+// #include "debug.h"
 
 
 
@@ -74,9 +74,9 @@ EasyXBee::wait_until_ready() {
 		&& response.getValue()[0] == SUCCESS) {
 
 
-		// REMOVE THIS!!
-		initDebugLog();
-		dbglog.print(F("Ready!\n"));
+		// // REMOVE THIS!!
+		// initDebugLog();
+		// dbglog.print(F("Ready!\n"));
 
 
 		return;
