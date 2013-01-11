@@ -29,6 +29,7 @@ from collections import deque
 
 class CommandError(Exception):
     def __init__(self, response):
+        self.response = response
         Exception.__init__(self, str(response))
 
 

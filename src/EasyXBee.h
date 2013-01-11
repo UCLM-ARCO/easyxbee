@@ -42,6 +42,11 @@ public:
 private:
     bool send_and_check_at_command(AtCommandRequest& request);
     uint8_t get_next_frame_id();
+    void handle_rx_response(XBeeResponse& response);
+
+    bool rx_pending_valid;
+    uint8_t rx_pending_size;
+    uint8_t rx_pending_data[MAX_FRAME_DATA_SIZE];
 
     XBee xbee;
     uint8_t frame_id;

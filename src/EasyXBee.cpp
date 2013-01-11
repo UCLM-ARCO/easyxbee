@@ -19,7 +19,15 @@
 // along with EasyXBee.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#include <string.h>
 #include "EasyXBee.h"
+
+
+
+// REMOVE THIS!
+#include "debug.h"
+
+
 
 #define NODE_DISCOVERY_TIMEOUT 6000  // in ms
 #define RESPONSE_TIMEOUT       1000  // in ms
@@ -28,7 +36,8 @@
 // Default constructor, just init this class attributes.
 //
 EasyXBee::EasyXBee() :
-  frame_id(DEFAULT_FRAME_ID) {
+    rx_pending_valid(false),
+    frame_id(DEFAULT_FRAME_ID) {
 }
 
 //
@@ -64,6 +73,12 @@ EasyXBee::wait_until_ready() {
 		&& response.getFrameId() == request.getFrameId()
 		&& response.getValue()[0] == SUCCESS) {
 
+
+		// REMOVE THIS!!
+		initDebugLog();
+		dbglog.print(F("Ready!\n"));
+
+
 		return;
 	    }
 
@@ -82,6 +97,13 @@ EasyXBee::wait_until_ready() {
 //
 bool
 EasyXBee::receive(uint8_t** data, uint8_t* size) {
+    if (rx_pending_valid) {
+	*size = rx_pending_size;
+	*data = rx_pending_data;
+	rx_pending_valid = false;
+	return true;
+    }
+
     ZBRxResponse response;
 
     xbee.readPacket();
@@ -130,6 +152,10 @@ EasyXBee::send(XBeeAddress64& addr64,
 
  		return true;
  	    }
+
+	    if (response.getApiId() == ZB_RX_RESPONSE) {
+		handle_rx_response(response);
+	    }
  	}
 
  	else {
@@ -187,6 +213,10 @@ EasyXBee::lookup(uint8_t* name, uint8_t size, XBeeAddress64* addr64, uint16_t* a
 		addr64->setLsb(lsb);
 
 		return true;
+	    }
+
+	    if (response.getApiId() == ZB_RX_RESPONSE) {
+		handle_rx_response(response);
 	    }
 	}
 
@@ -261,6 +291,10 @@ EasyXBee::send_and_check_at_command(AtCommandRequest& request) {
 
 		return true;
 	    }
+
+	    if (response.getApiId() == ZB_RX_RESPONSE) {
+		handle_rx_response(response);
+	    }
 	}
 
 	else {
@@ -280,3 +314,23 @@ EasyXBee::get_next_frame_id() {
     }
     return frame_id++;
 }
+
+//
+// If a rx_response is received when waiting for a at_response, use
+// this method to store it. It will be available on next receive().
+//
+void
+EasyXBee::handle_rx_response(XBeeResponse& response) {
+    if (rx_pending_valid) {
+	return;
+    }
+
+    ZBRxResponse rx_response;
+    response.getZBRxResponse(rx_response);
+
+    rx_pending_size = rx_response.getDataLength();
+    memcpy(rx_pending_data, rx_response.getData(), rx_pending_size);
+    rx_pending_valid = true;
+}
+
+
