@@ -24,13 +24,13 @@
 
 
 
-// // REMOVE THIS!
-// #include "debug.h"
+// REMOVE THIS!
+#include "debug.h"
 
 
 
-#define NODE_DISCOVERY_TIMEOUT 6000  // in ms
-#define RESPONSE_TIMEOUT       1000  // in ms
+#define NODE_DISCOVERY_TIMEOUT 3000  // in ms
+#define RESPONSE_TIMEOUT       500   // in ms
 
 //
 // Default constructor, just init this class attributes.
@@ -80,6 +80,10 @@ EasyXBee::wait_until_ready() {
 
 
 		return;
+	    }
+
+	    if (response.getApiId() == ZB_RX_RESPONSE) {
+		handle_rx_response(response);
 	    }
 
 	    xbee.send(request);
@@ -215,6 +219,11 @@ EasyXBee::lookup(uint8_t* name, uint8_t size, XBeeAddress64* addr64, uint16_t* a
 		return true;
 	    }
 
+	    // if (response.getApiId() == AT_COMMAND_RESPONSE
+	    // 	&& response.getFrameId() == request.getFrameId()) {
+	    // 	xbee.send(request);
+	    // }
+
 	    if (response.getApiId() == ZB_RX_RESPONSE) {
 		handle_rx_response(response);
 	    }
@@ -321,16 +330,18 @@ EasyXBee::get_next_frame_id() {
 //
 void
 EasyXBee::handle_rx_response(XBeeResponse& response) {
-    if (rx_pending_valid) {
-	return;
-    }
-
+    // If a new response is received, overwrite it (it should be more recent)
     ZBRxResponse rx_response;
     response.getZBRxResponse(rx_response);
 
     rx_pending_size = rx_response.getDataLength();
     memcpy(rx_pending_data, rx_response.getData(), rx_pending_size);
     rx_pending_valid = true;
+
+
+    // REMOVE THIS!!
+    initDebugLog();
+    dbglog.print(F("-- handle_rx_response()\n"));
 }
 
 
