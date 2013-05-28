@@ -24,8 +24,8 @@
 
 
 
-// REMOVE THIS!
-#include "debug.h"
+// // REMOVE THIS!
+// #include "debug.h"
 
 
 
@@ -243,9 +243,9 @@ EasyXBee::lookup(uint8_t* name, uint8_t size, XBeeAddress64* addr64, uint16_t* a
 // after changing the PAN id, to assure that changes are effective.
 //
 bool
-EasyXBee::set_pan_id(uint8_t* pan_id) {
+EasyXBee::set_pan_id(uint8_t* pan_id, uint8_t size) {
     uint8_t cmd[] = {'I', 'D'};
-    AtCommandRequest request(cmd, pan_id, 8);
+    AtCommandRequest request(cmd, pan_id, size);
 
     return send_and_check_at_command(request);
 }
@@ -339,9 +339,9 @@ EasyXBee::handle_rx_response(XBeeResponse& response) {
     rx_pending_valid = true;
 
 
-    // REMOVE THIS!!
-    initDebugLog();
-    dbglog.print(F("-- handle_rx_response()\n"));
+    // // REMOVE THIS!!
+    // initDebugLog();
+    // dbglog.print(F("-- handle_rx_response()\n"));
 }
 
 

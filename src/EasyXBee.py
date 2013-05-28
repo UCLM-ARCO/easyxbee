@@ -51,7 +51,8 @@ class XBeeDevice(object):
         self.msg_buffer = deque(maxlen=25)
 
     def __del__(self):
-        self.serial.close()
+        if hasattr(self, "serial"):
+            self.serial.close()
 
     def wait_read_frame(self, expected_id, expected_cmd=None):
         if not expected_cmd is None:

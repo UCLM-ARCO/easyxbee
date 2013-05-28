@@ -2,8 +2,8 @@ In order for this tools to work, you will need to make the module
 available, setting the PYTHONPATH variable. You can proceed as
 follows:
 
- $ cd src
+ $ cd ../src
  $ export PYTHONPATH=$(pwd)
- $ cd ../examples/python
- 
+ $ cd ../tools
+
 and launch whatever you need.

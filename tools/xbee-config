@@ -126,6 +126,10 @@ if __name__ == "__main__":
     parser.add_argument('-c', dest='check', action='store_true',
                         help="Check for correct settings")
 
-    args = parser.parse_args()
+    args = sys.argv[1:]
+    if len(args) < 1:
+        args.append("-h")
+
+    args = parser.parse_args(args)
     s = SetupTool(args)
     s.run()
