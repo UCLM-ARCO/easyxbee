@@ -1,3 +1,9 @@
+easyxbee (0.8-1) unstable; urgency=low
+
+  * Bugfix: changes on python-xbee API
+
+ -- Oscar Aceña Herrera <oscaracena@gmail.com>  Wed, 29 May 2013 13:31:43 +0200
+
 easyxbee (0.7-1) unstable; urgency=low
 
   * New upstream release.

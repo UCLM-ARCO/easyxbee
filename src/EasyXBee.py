@@ -23,6 +23,7 @@ from xbee import ZigBee
 import serial
 import struct
 import time
+import sys
 from select import select
 from collections import deque
 
@@ -146,34 +147,17 @@ class RemoteNode(object):
         node = RemoteNode(device)
         data = get_parameter(response)
 
-        i = 0
-
         # MY (2 Bytes)
-        node.my_addr = struct.unpack(">H", data[i:i + 2])[0]
-        i += 2
+        node.my_addr = struct.unpack(">H", data['source_addr'])[0]
 
         # SH (4 Bytes) + SL (4 Bytes)
-        node.hw_addr = struct.unpack(">Q", data[i:i + 8])[0]
-        i += 8
+        node.hw_addr = struct.unpack(">Q", data['source_addr_long'])[0]
 
         # NI (Variable length) + \0
-        while True:
-            c = data[i]
-            i += 1
-            if c == "\x00":
-                break
-            node.name += c
-
-        # PARENT_NETWORK ADDRESS (2 Bytes)
-        i += 2
+        node.name = data['node_identifier']
 
         # DEVICE_TYPE (1 Byte)
-        node.role = ord(data[i])
-        i += 1
-
-        # STATUS (1 Byte)
-        # PROFILE_ID (2 Bytes)
-        # MANUFACTURER_ID (2 Bytes)
+        node.role = ord(data['device_type'])
 
         return node
 
@@ -300,22 +284,21 @@ class LocalNode(object):
 
         self.device.send_command("ND", wait_response=False)
 
-        # if timeout is waited in select, it may be waited more than
-        # once (at least, a bit of it in first place, and the whole
-        # after the last response arrived)
-        time.sleep(timeout)
-
         nodes = []
         while True:
-            rlist = select([self.device.serial], [], [], 0.1)[0]
+            rlist = select([self.device.serial], [], [], timeout)[0]
             if not rlist:
                 break
 
             response = self.device.wait_read_frame('at_response')
+
             if response.get('status') != '\x00':
                 raise CommandError(response)
             nodes.append(
                 RemoteNode.create_from_nd_response(self.device, response))
+
+            sys.stdout.write(".")
+            sys.stdout.flush()
 
         return nodes
 

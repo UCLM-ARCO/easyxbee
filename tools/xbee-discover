@@ -18,7 +18,7 @@ class Discoverer:
         sys.stdout.flush()
 
         neighbors = self.local.discover()
-        print "Done"
+        print " Done"
         self.printResults(neighbors)
 
     def printResults(self, neighbors):
