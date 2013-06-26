@@ -7,7 +7,7 @@ Standards-Version: 3.9.3
 Homepage: https://bitbucket.org/OscarAcena/easyxbee/overview
 
 Package: easyxbee
-Architecture: i386
+Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends},
  python-serial, arduino-xbee
 Description: Library to work with XBee modules
