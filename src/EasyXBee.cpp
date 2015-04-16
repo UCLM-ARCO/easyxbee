@@ -22,13 +22,6 @@
 #include <string.h>
 #include "EasyXBee.h"
 
-
-
-// // REMOVE THIS!
-// #include "debug.h"
-
-
-
 #define NODE_DISCOVERY_TIMEOUT 3000  // in ms
 #define RESPONSE_TIMEOUT       500   // in ms
 
@@ -72,13 +65,6 @@ EasyXBee::wait_until_ready() {
 		&& response.getApiId() == AT_COMMAND_RESPONSE
 		&& response.getFrameId() == request.getFrameId()
 		&& response.getValue()[0] == SUCCESS) {
-
-
-		// // REMOVE THIS!!
-		// initDebugLog();
-		// dbglog.print(F("Ready!\n"));
-
-
 		return;
 	    }
 
@@ -243,9 +229,20 @@ EasyXBee::lookup(uint8_t* name, uint8_t size, XBeeAddress64* addr64, uint16_t* a
 // after changing the PAN id, to assure that changes are effective.
 //
 bool
-EasyXBee::set_pan_id(uint8_t* pan_id, uint8_t size) {
+EasyXBee::set_pan_id(uint8_t* requested_pan_id, uint8_t size) {
     uint8_t cmd[] = {'I', 'D'};
-    AtCommandRequest request(cmd, pan_id, size);
+
+    if (size > 8) {
+	size = 8;
+    }
+
+    uint8_t pan_id[8];
+    memcpy(pan_id, requested_pan_id, size);
+    for (short i=size; i<8; i++) {
+	pan_id[i] = 0;
+    }
+
+    AtCommandRequest request(cmd, pan_id, 8);
 
     return send_and_check_at_command(request);
 }
@@ -337,11 +334,4 @@ EasyXBee::handle_rx_response(XBeeResponse& response) {
     rx_pending_size = rx_response.getDataLength();
     memcpy(rx_pending_data, rx_response.getData(), rx_pending_size);
     rx_pending_valid = true;
-
-
-    // // REMOVE THIS!!
-    // initDebugLog();
-    // dbglog.print(F("-- handle_rx_response()\n"));
 }
-
-
