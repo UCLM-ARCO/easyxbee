@@ -3,7 +3,7 @@ Section: devel
 Priority: extra
 Maintainer: Oscar Aceña Herrera <oscaracena@gmail.com>
 Build-Depends: debhelper (>= 8.0.0), python
-Standards-Version: 3.9.3
+Standards-Version: 3.9.6
 Homepage: https://bitbucket.org/OscarAcena/easyxbee/overview
 
 Package: easyxbee
