@@ -78,6 +78,22 @@ EasyXBee::wait_until_ready() {
 }
 
 //
+// Returns 'true' if data is available, 'false' otherwise. Do not read
+// it from input buffer.
+//
+bool
+EasyXBee::available() {
+    if (rx_pending_valid)
+	return true;
+
+    if (xbee.getResponse().isAvailable()
+	&& xbee.getResponse().getApiId() == ZB_RX_RESPONSE)
+	return true;
+
+    return false;
+}
+
+//
 // Try to read a Rx frame (non-blocking). If available, returns true
 // and points 'data' to its content (no copy of data will be made, so
 // if you call readPacket again, pointer data will be changed), and

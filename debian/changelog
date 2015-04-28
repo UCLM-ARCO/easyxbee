@@ -1,3 +1,9 @@
+easyxbee (0.20150428-1) unstable; urgency=low
+
+  * New release: added 'available' method
+
+ -- Oscar Aceña Herrera <oscaracena@gmail.com>  Tue, 28 Apr 2015 14:20:50 +0200
+
 easyxbee (0.20150416-1) unstable; urgency=low
 
   * New release

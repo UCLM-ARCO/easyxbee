@@ -32,6 +32,7 @@ public:
     void begin(uint16_t rate);
     void wait_until_ready();
 
+    bool available();
     bool receive(uint8_t** data, uint8_t* size);
     bool send(XBeeAddress64& addr64, uint16_t addr16, uint8_t* data, uint8_t size);
 
