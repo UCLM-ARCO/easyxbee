@@ -86,9 +86,16 @@ EasyXBee::available() {
     if (rx_pending_valid)
 	return true;
 
+    xbee.readPacket(10);
+
     if (xbee.getResponse().isAvailable()
-	&& xbee.getResponse().getApiId() == ZB_RX_RESPONSE)
+	&& xbee.getResponse().getApiId() == ZB_RX_RESPONSE) {
+
+	ZBRxResponse response;
+	xbee.getResponse().getZBRxResponse(response);
+	handle_rx_response(response);
 	return true;
+    }
 
     return false;
 }
@@ -111,7 +118,6 @@ EasyXBee::receive(uint8_t** data, uint8_t* size) {
     }
 
     ZBRxResponse response;
-
     xbee.readPacket();
 
     if (not xbee.getResponse().isAvailable()
