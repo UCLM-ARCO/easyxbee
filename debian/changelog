@@ -1,3 +1,9 @@
+easyxbee (0.20160201-1) unstable; urgency=low
+
+  * New release: make package for all platforms (only python and src)
+
+ -- Oscar Aceña Herrera <oscaracena@gmail.com>  Mon, 01 Feb 2016 10:54:29 +0100
+
 easyxbee (0.20150428.1-1) unstable; urgency=low
 
   * New release: fix 'available' method
