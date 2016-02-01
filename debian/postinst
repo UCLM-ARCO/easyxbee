@@ -1,0 +1,10 @@
+#!/bin/sh
+# -*- mode: sh; coding: utf-8 -*-
+
+set -e
+
+sudo pip install xbee
+
+#DEBHELPER#
+
+exit 0
