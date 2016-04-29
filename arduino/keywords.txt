@@ -1,0 +1,25 @@
+#######################################
+# Syntax Coloring Map
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+EasyXBee		KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+begin			KEYWORD2
+wait_until_ready	KEYWORD2
+available 		KEYWORD2
+receive 		KEYWORD2
+send 			KEYWORD2
+lookup 			KEYWORD2
+set_pan_id 		KEYWORD2
+set_name 		KEYWORD2
+write_config 		KEYWORD2
+
+######################################
+# Constants (LITERAL1)
+#######################################

@@ -1,3 +1,9 @@
+easyxbee (0.20160429-1) unstable; urgency=low
+
+  * New release, adapt to new Arduino library scheme
+
+ -- Oscar Aceña Herrera <oscaracena@gmail.com>  Fri, 29 Apr 2016 11:41:11 +0200
+
 easyxbee (0.20160201-1) unstable; urgency=low
 
   * New release: make package for all platforms (only python and src)
