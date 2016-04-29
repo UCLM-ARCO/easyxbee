@@ -1,8 +1,12 @@
-
 To use Python version of EasyXBee, you will need to install the xbee
-module for Python. From now, it is only available using pip:
+module for Python. From now, it is only available using pip (altough it 
+will be installed along the easyxbee Debian package):
 
     $ sudo pip install xbee
+
+You may add a link to the library on your 'libraries' path:
+  
+    $ ln -s /usr/share/arduino/libraries/EasyXBee/ $HOME/Arduino/libraries
 
 Important Notes
 ---------------
