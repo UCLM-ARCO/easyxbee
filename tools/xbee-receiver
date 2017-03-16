@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- mode: python; coding: utf-8 -*-
 
 import sys
@@ -14,13 +14,13 @@ class Receiver:
             self.local.set_pan_id(args.panid)
 
     def run(self):
-        print "Waiting events..."
+        print("Waiting events...")
 
         while True:
             try:
-                print list(self.local.receive())
+                print(list(self.local.receive()))
             except KeyboardInterrupt:
-                print "\rBye!"
+                print("\rBye!")
                 break
 
 

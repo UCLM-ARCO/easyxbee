@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- mode: python; coding: utf-8 -*-
 
 import sys
@@ -13,22 +13,22 @@ class Discoverer:
         self.local = LocalNode(tty=device, speed=speed)
 
     def run(self):
-        print "Device: '{}'".format(self._device)
-        print "Discovering...",
+        print("Device: '{}'".format(self._device))
+        print("Discovering...", end=' ')
         sys.stdout.flush()
 
         neighbors = self.local.discover()
-        print " Done"
+        print(" Done")
         self.printResults(neighbors)
 
     def printResults(self, neighbors):
         if not neighbors:
-            print "No neighbors found!"
+            print("No neighbors found!")
             return
 
-        print "Results:"
+        print("Results:")
         for i, n in enumerate(neighbors):
-            print "{}: {}".format(i, n)
+            print("{}: {}".format(i, n))
 
 
 if __name__ == "__main__":
@@ -44,4 +44,3 @@ if __name__ == "__main__":
     args = parser.parse_args()
     s = Discoverer(args.device, args.speed)
     s.run()
-

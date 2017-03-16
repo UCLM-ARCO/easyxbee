@@ -1,3 +1,9 @@
+easyxbee (0.20170316-1) unstable; urgency=low
+
+  * New release
+
+ -- Oscar Aceña Herrera <oscaracena@gmail.com>  Thu, 16 Mar 2017 14:38:55 +0100
+
 easyxbee (0.20160429-1) unstable; urgency=low
 
   * New release, adapt to new Arduino library scheme

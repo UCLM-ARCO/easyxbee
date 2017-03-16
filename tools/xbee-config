@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- mode: python; coding: utf-8 -*-
 
 import sys
@@ -38,12 +38,12 @@ class SetupTool:
         if sleep_mode == -1:
             sleep_mode = "<not available>"
 
-        print ("Current info:\n"
-               " - Role: {}\n".format(role) +
-               " - PAN id: '{}'\n".format(panid) +
-               " - Name: '{}'\n".format(name) +
-               " - API level: {}\n".format(api_level) +
-               " - Sleep mode: {}\n".format(sleep_mode))
+        print("Current info:\n"
+              " - Role: {}\n".format(role) +
+              " - PAN id: '{}'\n".format(panid) +
+              " - Name: '{}'\n".format(name) +
+              " - API level: {}\n".format(api_level) +
+              " - Sleep mode: {}\n".format(sleep_mode))
 
         return True
 
@@ -53,14 +53,14 @@ class SetupTool:
 
         api_level = self.local.get_api_level()
         sleep_mode = self.local.get_sleep_mode()
-        print "Device: {}, API Level: {}, sleep mode: {}".format(
-            self.args.device, api_level, sleep_mode)
+        print("Device: {}, API Level: {}, sleep mode: {}".format(
+            self.args.device, api_level, sleep_mode))
 
         if api_level == 1 and sleep_mode <= 0:
-            print "It seems correct!"
+            print("It seems correct!")
         else:
             if api_level != 1:
-                print "- API Level not compatible with this library"
+                print("- API Level not compatible with this library")
             if sleep_mode > 0:
                 print ("- Sleep mode enabled, this will cause many delays "
                        "when communicating with device")
@@ -71,35 +71,35 @@ class SetupTool:
         if not self.args.reset:
             return False
 
-        print "Resetting device...",
+        print("Resetting device...", end=' ')
         sys.stdout.flush()
 
         self.local.reset_device()
         time.sleep(2)
 
-        print "Done"
+        print("Done")
         return True
 
     def config_panid(self):
         if not self.args.panid:
             return
 
-        print "Setting PAN identifier to '{}'".format(self.args.panid)
+        print("Setting PAN identifier to '{}'".format(self.args.panid))
         self.local.set_pan_id(self.args.panid)
 
     def config_name(self):
         if not self.args.nodename:
             return
 
-        print "Setting node name to '{}'".format(self.args.nodename)
+        print("Setting node name to '{}'".format(self.args.nodename))
         self.local.set_name(self.args.nodename)
 
     def write_configuration(self):
         if self.args.save:
-            print "Making configuration permanent"
+            print("Making configuration permanent")
             self.local.write_config()
         else:
-            print "This configuration will not be permanent"
+            print("This configuration will not be permanent")
 
 
 if __name__ == "__main__":

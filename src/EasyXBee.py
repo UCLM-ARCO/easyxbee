@@ -1,7 +1,7 @@
 # -*- mode: python; coding: utf-8 -*-
 
 #
-# Copyright (c) 2012 Oscar Aceña. All rights reserved.
+# Copyright (c) 2012-2017 Oscar Aceña. All rights reserved.
 #
 # This file is part of EasyXBee.
 #
@@ -39,7 +39,7 @@ class HardwareError(Exception):
 
 
 def get_parameter(response):
-    data = response.get('parameter')
+    data = response.get(b'parameter')
     if data is None:
         raise CommandError(response)
     return data
@@ -56,20 +56,21 @@ class XBeeDevice(object):
             self.serial.close()
 
     def wait_read_frame(self, expected_id, expected_cmd=None):
-        if not expected_cmd is None:
+        if expected_cmd is not None:
             expected_cmd = expected_cmd.lower()
 
+        print("wait read frame")
         while True:
             while self.data_available():
                 frame = self.xbee.wait_read_frame()
                 self.msg_buffer.append(frame)
 
-            for i in reversed(range(len(self.msg_buffer))):
+            for i in reversed(list(range(len(self.msg_buffer)))):
                 frame = self.msg_buffer[i]
-                frame_cmd = frame.get('command')
-                if not frame_cmd is None:
+                frame_cmd = frame.get(b'command')
+                if frame_cmd is not None:
                     frame_cmd = frame_cmd.lower()
-                frame_id = frame.get('id')
+                frame_id = frame.get(b'id')
 
                 if (frame_id == expected_id):
                     if (expected_cmd is None or expected_cmd == frame_cmd):
@@ -82,8 +83,8 @@ class XBeeDevice(object):
         if not wait_response:
             return
 
-        response = self.wait_read_frame('at_response', cmd)
-        if response.get('status') != '\x00':
+        response = self.wait_read_frame(b'at_response', cmd)
+        if response.get(b'status') != b'\x00':
             raise CommandError(response)
         return response
 
@@ -91,15 +92,15 @@ class XBeeDevice(object):
         addr = struct.pack('>H', addr)
         addr_long = struct.pack('>Q', addr_long)
 
-        self.xbee.send('tx', dest_addr_long=addr_long,
+        self.xbee.send(b'tx', dest_addr_long=addr_long,
                        dest_addr=addr, data=data)
 
-        response = self.wait_read_frame('tx_status')
-        if response.get('deliver_status') != '\x00':
+        response = self.wait_read_frame(b'tx_status')
+        if response.get(b'deliver_status') != b'\x00':
             raise CommandError(response)
 
     def receive_frame(self):
-        return self.wait_read_frame('rx')
+        return self.wait_read_frame(b'rx')
 
     def data_available(self, timeout=0):
         for i in range(int(timeout * 10)):
@@ -109,7 +110,7 @@ class XBeeDevice(object):
         return self.serial.inWaiting() > 0
 
     def get_max_payload_size(self):
-        response = self.send_command("NP")
+        response = self.send_command(b"NP")
         size = get_parameter(response)
         return struct.unpack(">H", size)[0]
 
@@ -118,7 +119,7 @@ class RemoteNode(object):
     def __init__(self, device):
         self.device = device
         self.xbee = None
-        self.name = ""
+        self.name = b""
         self.my_addr = None
         self.hw_addr = None
         self.role = 255
@@ -128,13 +129,13 @@ class RemoteNode(object):
             self.name, self.my_addr, self.get_role_name())
 
     def __repr__(self):
-        return unicode(self)
+        return str(self)
 
     def get_role_name(self):
         try:
-            return ["coordinator",
-                    "router",
-                    "end device",
+            return [b"coordinator",
+                    b"router",
+                    b"end device",
                     ][self.role]
         except IndexError:
             return "unknown role (0x{:x})".format(self.role)
@@ -148,16 +149,16 @@ class RemoteNode(object):
         data = get_parameter(response)
 
         # MY (2 Bytes)
-        node.my_addr = struct.unpack(">H", data['source_addr'])[0]
+        node.my_addr = struct.unpack(">H", data[b'source_addr'])[0]
 
         # SH (4 Bytes) + SL (4 Bytes)
-        node.hw_addr = struct.unpack(">Q", data['source_addr_long'])[0]
+        node.hw_addr = struct.unpack(">Q", data[b'source_addr_long'])[0]
 
         # NI (Variable length) + \0
-        node.name = data['node_identifier']
+        node.name = data[b'node_identifier']
 
         # DEVICE_TYPE (1 Byte)
-        node.role = ord(data['device_type'])
+        node.role = ord(data[b'device_type'])
 
         return node
 
@@ -185,8 +186,9 @@ class LocalNode(object):
         self.device = device
 
     def get_id_as_int64(self, value):
+        value = bytes(value, "utf-8")
         for i in range(8 - len(value)):
-            value += '\x00'
+            value += b'\x00'
         return struct.unpack(">Q", value)[0]
 
     def set_pan_id(self, value):
@@ -197,14 +199,14 @@ class LocalNode(object):
             return
 
         value = struct.pack('>Q', value)
-        self.device.send_command("ID", value)
+        self.device.send_command(b"ID", value)
 
         # # this command sends two frames, discards the second
         # if self.device.data_available(0.5):
-        #     self.device.wait_read_frame('at_response')
+        #     self.device.wait_read_frame(b'at_response')
 
     def get_pan_id(self, unpack=True):
-        response = self.device.send_command("ID")
+        response = self.device.send_command(b"ID")
         pan = get_parameter(response)
 
         if not unpack:
@@ -212,65 +214,65 @@ class LocalNode(object):
         return struct.unpack('>Q', pan)[0]
 
     def get_api_level(self):
-        response = self.device.send_command("AP")
+        response = self.device.send_command(b"AP")
         level = get_parameter(response)
         return ord(level)
 
     def get_role(self):
-        response = self.device.send_command("VR")
+        response = self.device.send_command(b"VR")
         role = get_parameter(response)
 
         fver = hex(struct.unpack('>H', role)[0])
-        return {'1': (0, 'coordinator'),
-                '3': (1, 'router'),
-                '9': (2, 'end device')}[fver[3]]
+        return {b'1': (0, b'coordinator'),
+                b'3': (1, b'router'),
+                b'9': (2, b'end device')}[fver[3]]
 
     def get_sleep_mode(self):
         # Coordinator doesn't have sleep modes
         if self.get_role()[0] == 0:
             return -1
 
-        response = self.device.send_command("SM")
+        response = self.device.send_command(b"SM")
         mode = get_parameter(response)
         return ord(mode)
 
     def get_my_address(self):
-        response = self.device.send_command("MY")
+        response = self.device.send_command(b"MY")
         addr = get_parameter(response)
         return struct.unpack('>H', addr)[0]
 
     def get_name(self):
-        response = self.device.send_command("NI")
+        response = self.device.send_command(b"NI")
         return get_parameter(response)
 
     def set_name(self, name):
         if self.get_name() == name:
             return
 
-        self.device.send_command("NI", str(name))
+        self.device.send_command(b"NI", str(name))
 
     def write_config(self):
-        self.device.send_command("WR")
+        self.device.send_command(b"WR")
 
     def reset_device(self):
-        self.device.send_command("FR")
+        self.device.send_command(b"FR")
 
     def is_alive(self):
-        self.device.send_command("VR")
+        self.device.send_command(b"VR")
         return True
 
     def lookup(self, name):
         timeout = float(self.get_node_discovery_timeout())
         timeout = timeout / 1000 + 0.25
 
-        self.device.send_command("DN", str(name), wait_response=False)
+        self.device.send_command(b"DN", str(name), wait_response=False)
         rlist = select([self.device.serial], [], [], timeout)[0]
 
         if not rlist:
             raise HardwareError("Module XBee not responding")
 
-        response = self.device.wait_read_frame('at_response')
-        if response.get('status') != '\x00':
+        response = self.device.wait_read_frame(b'at_response')
+        if response.get(b'status') != b'\x00':
             # node not found
             return None
 
@@ -282,7 +284,7 @@ class LocalNode(object):
         timeout = float(self.get_node_discovery_timeout())
         timeout = timeout / 1000 + 0.25
 
-        self.device.send_command("ND", wait_response=False)
+        self.device.send_command(b"ND", wait_response=False)
 
         nodes = []
         while True:
@@ -290,9 +292,9 @@ class LocalNode(object):
             if not rlist:
                 break
 
-            response = self.device.wait_read_frame('at_response')
+            response = self.device.wait_read_frame(b'at_response')
 
-            if response.get('status') != '\x00':
+            if response.get(b'status') != b'\x00':
                 raise CommandError(response)
             nodes.append(
                 RemoteNode.create_from_nd_response(self.device, response))
@@ -303,7 +305,7 @@ class LocalNode(object):
         return nodes
 
     def get_node_discovery_timeout(self):
-        response = self.device.send_command("NT")
+        response = self.device.send_command(b"NT")
 
         # NT is multiplied by 100 to get the real time, in ms
         timeout = get_parameter(response)
@@ -312,6 +314,6 @@ class LocalNode(object):
     def receive(self):
         while True:
             message = self.device.receive_frame()
-            data = message.get('rf_data')
+            data = message.get(b'rf_data')
             if data:
                 return data

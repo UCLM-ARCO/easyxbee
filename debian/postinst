@@ -3,7 +3,7 @@
 
 set -e
 
-sudo pip install xbee
+sudo pip3 install xbee
 
 #DEBHELPER#
 

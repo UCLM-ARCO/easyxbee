@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- mode: python; coding: utf-8 -*-
 
 import sys
@@ -16,7 +16,7 @@ class Sender:
     def set_destination(self, name):
         self.remote = self.local.lookup(name)
         if self.remote is None:
-            print "ERROR, unknown destination"
+            print("ERROR, unknown destination")
             sys.exit(-1)
 
     def send_text(self, message):
